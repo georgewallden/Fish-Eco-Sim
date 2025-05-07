@@ -1,0 +1,9 @@
+Please be aware of the specific documentation structure used in the following code file. It follows a comment-first design pattern.
+Top Section (Blueprint/Specification): At the very top, before the --- START CODE IMPLEMENTATION --- marker, you will find a detailed blueprint for the file's contents. This section provides comprehensive, numbered descriptions of each major code block (classes, methods, functions). Each description includes:
+A clear statement of purpose.
+Details about inputs (including type, source, constraints).
+A step-by-step description of the algorithm or process.
+Details about the expected output or side effects.
+Bottom Section (Implementation): Below the --- START CODE IMPLEMENTATION --- marker, the actual Python code implements these described blocks. The code blocks are marked with minimal headers (e.g., ### 1.1 Method: ... ###) corresponding to the numbered descriptions above.
+Purpose: This structure ensures that the design intent, detailed logic, and specification for each part of the code are clearly documented upfront within the file itself.
+Instruction: Please prioritize reading and using the detailed comments in the top section as the primary source of context and specification when analyzing, debugging, or suggesting changes to the code implementation found below the --- START CODE IMPLEMENTATION --- marker. The comments describe what the code is intended to do and how it is designed to do it.

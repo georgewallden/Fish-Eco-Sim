@@ -9,7 +9,7 @@ PANEL_WIDTH = 200   # Width of the UI panel on the right
 # Derived total window width (used when setting up the pygame display)
 TOTAL_SCREEN_WIDTH = SCREEN_WIDTH + PANEL_WIDTH
 
-FPS = 60 # Frames per second
+FPS = 30 # Frames per second
 
 # --- Grid Settings ---
 GRID_COLS = 192 # Number of columns in the grid
@@ -39,8 +39,8 @@ COLOR_TEXT = (0, 0, 0) # Black for text
 
 # --- Simulation Settings ---
 INITIAL_AGENT_COUNT = 1 # Number of agents to start with
-INITIAL_FOOD_COUNT = 20  # Number of food pellets to start with
-FOOD_LIFESPAN_TICKS = 200 # How long food lasts if not eaten (in simulation ticks)
+INITIAL_FOOD_COUNT = 2000  # Number of food pellets to start with
+FOOD_LIFESPAN_TICKS = 2000000 # How long food lasts if not eaten (in simulation ticks)
 FOOD_SPAWN_INTERVAL_TICKS = 50 # How often new food attempts to spawn
 FOOD_SPAWN_AMOUNT = 5 # How many food pellets spawn at once when spawning
 FOOD_ENERGY_VALUE = 20 # How much energy a food pellet provides when eaten
