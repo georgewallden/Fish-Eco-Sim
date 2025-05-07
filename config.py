@@ -69,6 +69,7 @@
 # - BASE_ENERGY_DRAIN_PER_TICK (float): Optional: Energy cost incurred by an agent each simulation tick just for existing (use one or both drain types).
 # - BASE_MAX_AGE_TICKS (int): Default maximum age (in ticks) an agent can reach before dying naturally of old age.
 # - BASE_VISION_RANGE (int): Default number of grid cells an agent can 'see' outwards when searching for targets like food.
+# - BASE_MAX_ENERGY (float): **NEW** Default maximum energy an agent can store. Used for initial energy and for normalizing energy levels for network input.
 #
 # Process:
 # Simply defines and assigns static values to global constants upon file import. No runtime logic is performed.
@@ -111,9 +112,9 @@ COLOR_TEXT = (0, 0, 0)
 
 # --- Simulation Settings ---
 INITIAL_AGENT_COUNT = 1
-INITIAL_FOOD_COUNT = 2000
-FOOD_LIFESPAN_TICKS = 2000000
-FOOD_SPAWN_INTERVAL_TICKS = 50
+INITIAL_FOOD_COUNT = 10
+FOOD_LIFESPAN_TICKS = 200
+FOOD_SPAWN_INTERVAL_TICKS = 25
 FOOD_SPAWN_AMOUNT = 5
 FOOD_ENERGY_VALUE = 20
 
@@ -125,8 +126,9 @@ BASE_MOVE_INTERVAL_TICKS = 3
 BASE_ENERGY_DRAIN_PER_MOVE = 1 # Energy cost each time an agent moves
 BASE_ENERGY_DRAIN_PER_TICK = 0.05 # Optional: energy drain just for existing each tick
 BASE_MAX_AGE_TICKS = 1000 # Example maximum age before an agent dies naturally
-
-# New: Base trait for vision
 BASE_VISION_RANGE = 5 # Default number of grid cells an agent can 'see'
+
+BASE_MAX_ENERGY = 1000.0 # NEW: Default maximum energy an agent can have
+
 
 # --- END CODE IMPLEMENTATION ---
