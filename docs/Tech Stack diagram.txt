@@ -1,0 +1,133 @@
+# Tech Stack Interaction Document
+
+**Version:** 0.1 (Initial Draft)
+**Last Updated:** [Current Date]
+
+---
+
+## 1. Overview
+
+This document details the primary interaction pathways, communication protocols, and data formats used between the core layers and services of the Fish Eco Sim platform. It complements the individual layer design documents by focusing on the "connections" between them. The **Communication Layer** (defined by Pub/Sub, gRPC, NATS, Protobuf, FlatBuffers) underpins all these interactions, with the **Go Orchestrator** often acting as a central hub.
+
+---
+
+## 2. Core Interaction Scenarios
+
+### 2.1. Simulation Initialization and Worker Startup
+
+1.  **Initiator:** User (via UI Layer or Experiment Management System).
+2.  **Action:** Request to start a new simulation.
+3.  **Flow:**
+    *   **UI/EMS (Python)** `--(gRPC Call: StartSimulationCommand)-->` **Go Orchestrator**
+        *   **Data:** `StartSimulationCommand` (Protobuf) containing simulation configuration (derived from YAML, possibly including `simulation_id`, worker type, specific sim params).
+    *   **Go Orchestrator** selects/spawns a **Rust Simulation Worker** process.
+    *   **Go Orchestrator** `--(Startup Params/gRPC Initial Call)-->` **Rust Simulation Worker**
+        *   **Data:** Worker-specific configuration (e.g., world size, initial agent setup, RNG seed). This might be passed as command-line arguments, environment variables, or an initial gRPC call after connection.
+    *   **Rust Simulation Worker** initializes itself.
+    *   **Rust Simulation Worker** `--(gRPC Call: RegisterWorker OR NATS Event: "worker.ready")-->` **Go Orchestrator**
+        *   **Data:** `WorkerRegistrationInfo` (Protobuf) containing `worker_id`, capabilities, `simulation_id` it's running.
+        *   **Purpose:** Informs the Orchestrator the worker is ready to receive commands and start simulating.
+
+### 2.2. Simulation Tick: Event Generation and Real-Time Distribution
+
+1.  **Initiator:** **Rust Simulation Worker** (executing a simulation tick).
+2.  **Action:** An event occurs in the simulation (e.g., world state updated, agent observation ready, agent died).
+3.  **Flow:**
+    *   **Rust Simulation Worker** `--(gRPC Stream OR NATS Publish: GenericEventRequest)-->` **Go Orchestrator**
+        *   **Data:** `GenericEventRequest` (Protobuf) containing:
+            *   `event_type_key` (e.g., `"sim.world_state.v1"`, `"sim.agent_observation.v1"`).
+            *   `event_payload` (Serialized FlatBuffer for world state, Protobuf for others).
+            *   `timestamp_ns`, `worker_id`, `simulation_id`.
+    *   **Go Orchestrator** receives `GenericEventRequest`.
+    *   **Go Orchestrator** `--(NATS Publish: GenericEventRequest)-->` **NATS Server**
+        *   **Purpose:** Fans out the event to relevant NATS topics based on `event_type_key` and internal routing.
+        *   **Topics (Examples):**
+            *   `realtime.ui.world_state.{sim_id}` (for UI)
+            *   `realtime.ai.observations.{sim_id}.{agent_id}` (for Agent Intelligence)
+            *   `logging.events.raw` (persistent JetStream topic for Logging Service)
+            *   `monitoring.events.critical` (for Alerting Service, if applicable)
+
+### 2.3. Agent Decision-Making Cycle (Observation -> Action -> Reward)
+
+1.  **Observation Distribution (Part of 2.2):**
+    *   **NATS Server** `--(NATS Subscribe: GenericEventRequest)-->` **Python Agent Intelligence Service**
+        *   **Data:** `GenericEventRequest` where `event_type_key` is `"sim.agent_observation.v1"` and `event_payload` is `AgentObservation` (Protobuf).
+2.  **Action Generation:**
+    *   **Python Agent Intelligence Service** processes observation, NN performs inference.
+    *   **Python Agent Intelligence Service** `--(gRPC Call OR NATS Publish: GenericEventRequest)-->` **Go Orchestrator**
+        *   **Data:** `GenericEventRequest` where `event_type_key` is `"ai.agent_action.v1"` and `event_payload` is `AgentAction` (Protobuf).
+3.  **Action Delivery to Simulation:**
+    *   **Go Orchestrator** `--(gRPC Call OR NATS Publish: GenericEventRequest)-->` **Target Rust Simulation Worker**
+        *   **Data:** `GenericEventRequest` (same as above) or just the extracted `AgentAction` payload. Orchestrator routes to the correct worker based on `agent_id` or `simulation_id`.
+    *   **Rust Simulation Worker** applies the action.
+4.  **Reward Distribution (Part of 2.2, after action application):**
+    *   Simulation generates reward. This is published as another `GenericEventRequest` (e.g., `event_type_key="sim.agent_reward.v1"`).
+    *   **NATS Server** `--(NATS Subscribe: GenericEventRequest)-->` **Python Agent Intelligence Service**
+        *   **Data:** `GenericEventRequest` where `event_payload` is `AgentReward` (Protobuf).
+        *   **Purpose:** Used for RL training loop.
+
+### 2.4. User Command Execution (e.g., Pause, Set Speed)
+
+1.  **Initiator:** User via **Python UI Application**.
+2.  **Action:** User clicks a UI control (e.g., "Pause" button).
+3.  **Flow:**
+    *   **Python UI App** `--(gRPC Call: ControlSimCommand)-->` **Go Orchestrator**
+        *   **Data:** `ControlSimCommand` (Protobuf) containing `simulation_id` and command type (e.g., `PAUSE`), and any parameters. (Alternatively, UI publishes a `GenericEventRequest` with `event_type_key="ui.control.pause_sim.v1"` to Orchestrator via NATS/gRPC).
+    *   **Go Orchestrator** identifies target **Rust Simulation Worker(s)**.
+    *   **Go Orchestrator** `--(gRPC Call OR NATS Publish: ControlCommand)-->` **Target Rust Simulation Worker(s)**
+        *   **Data:** Specific control command (e.g., internal representation of "pause").
+    *   **Rust Simulation Worker** executes the command (e.g., pauses its simulation loop).
+    *   (Optional) **Rust Simulation Worker** `--(NATS/gRPC Event: "sim.status_update")-->` **Go Orchestrator** `--(NATS Event)-->` **Python UI App**
+        *   **Purpose:** UI receives confirmation or updated status.
+
+### 2.5. Data Logging
+
+1.  **Event Production (Part of 2.2):**
+    *   **Go Orchestrator** publishes `GenericEventRequest` messages to the `logging.events.raw` NATS JetStream topic.
+2.  **Log Consumption:**
+    *   **NATS JetStream** `--(NATS Subscribe: GenericEventRequest)-->` **Python Logging Service**
+        *   **Data:** `GenericEventRequest` messages.
+    *   **Python Logging Service** batches data and writes to **Apache Parquet files**.
+
+### 2.6. System Monitoring & Alerting
+
+1.  **Metrics Exposure:**
+    *   **All Services (Rust, Go, Python)** `--(HTTP Scrape)-->` **Prometheus Server**
+        *   **Data:** Metrics in Prometheus exposition format from `/metrics` endpoints.
+2.  **Dashboarding:**
+    *   **Prometheus Server** `--(PromQL Query via HTTP)-->` **Grafana**
+        *   **Data:** Time-series metric data.
+3.  **Metric-Based Alerting:**
+    *   **Prometheus Server** evaluates alerting rules.
+    *   **Prometheus Server** `--(HTTP POST)-->` **Alertmanager**
+        *   **Data:** Fired alerts.
+4.  **Event-Based Alerting (Optional Custom Service):**
+    *   **Go Orchestrator / Other Services** `--(NATS Publish: CriticalEvent)-->` **NATS Server**
+    *   **NATS Server** `--(NATS Subscribe: CriticalEvent)-->` **Custom Alerting Service (Python/Go)**
+    *   **Custom Alerting Service OR Alertmanager** `--(Email/Slack/etc.)-->` **User/Admin**
+
+### 2.7. Configuration Loading
+
+1.  **User Interaction:**
+    *   **User** `--(Edits via UI)-->` **Python Config UI Tool** `--(Saves)-->` **YAML Config Files**
+2.  **Service Startup:**
+    *   **All Services (Rust, Go, Python)** `--(File Read)-->` **YAML Config Files**
+        *   Each service parses its relevant section.
+        *   *Note:* For Rust workers, the **Go Orchestrator** typically reads the master YAML, extracts the worker-specific config, and passes it to the Rust worker during startup.
+
+---
+
+## 3. Key Data Formats in Transit
+
+*   **`GenericEventRequest` (Protobuf):** The primary wrapper for most asynchronous events. Contains metadata and an opaque `event_payload`.
+*   **`event_payload` (within `GenericEventRequest`):**
+    *   **FlatBuffers:** Primarily for `WorldStateUpdate` from Simulation to Orchestrator, then to UI.
+    *   **Protobuf:** For most other discrete events (agent actions, observations, rewards, status updates, commands).
+*   **gRPC Request/Response Types (Protobuf):** Defined in `.proto` files for specific synchronous interactions (e.g., `StartSimulationCommand`, `ControlSimCommand`).
+*   **YAML:** For configuration files.
+*   **Apache Parquet:** For persistent storage of logged historical data.
+*   **Prometheus Exposition Format:** For metrics.
+
+---
+
+This document aims to provide a clear textual representation of how the different parts of your system are intended to interact. It should serve as a good reference as you begin implementation.
