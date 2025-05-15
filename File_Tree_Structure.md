@@ -1,6 +1,6 @@
 Documentation Table of Contents (File Tree Structure)
 
-Version: 1 (First Commit for Documentation)Last Updated: 5/10/2025
+Version: 2 - Alpha a0.1.1.1
 
 This document provides an index to all major design, planning, and architectural documents for the Fish Eco Sim project, reflecting the file structure.
 Use code with caution.
@@ -8,29 +8,40 @@ Use code with caution.
 FISH ECO SIM
 ├── README.md
 └── docs
-    ├── layers
-    │   ├── 1. Simulation Layer.md
-    │   ├── 2. Orchestration Layer.md
-    │   ├── 3. Communication Layer.md
-    │   ├── 4. Agent Intelligence Layer.md
-    │   ├── 5. UI Layer.md
-    │   ├── 6. Logging Layer.md
-    │   ├── 7. Analysis Layer.md
-    │   ├── 8. Configuration Management System.md
-    │   ├── 9. Experiment Management System.md
-    │   ├── 10. Agent Evolution System.md
-    │   └── 11. Monitoring and Alerting System.md
-    ├── roadmap
-    │   ├── alpha.md
-    │   ├── beta.md
-    │   ├── full.md
-    │   └── Versioning Strategy.md
-    ├── Design_Philosophy.md
-    ├── Glossary_of_Terms.md
-    ├── High_Level_Tech_Stack_Description.md
-    ├── Schema_Registry.md
-    ├── Tech Stack diagram.txt
-    └── File_Tree_Structure.md
+├   ├── layers
+│   │   ├── 1. Simulation Layer.md
+│   │   ├── 2. Orchestration Layer.md
+│   │   ├── 3. Communication Layer.md
+│   │   ├── 4. Agent Intelligence Layer.md
+│   │   ├── 5. UI Layer.md
+│   │   ├── 6. Logging Layer.md
+│   │   ├── 7. Analysis Layer.md
+│   │   ├── 8. Configuration Management System.md
+│   │   ├── 9. Experiment Management System.md
+│   │   ├── 10. Agent Evolution System.md
+│   │   └── 11. Monitoring and Alerting System.md
+│   ├── roadmap
+│   │   ├── alpha.md
+│   │   ├── beta.md
+│   │   ├── full.md
+│   │   └── Versioning Strategy.md
+│   ├── Design_Philosophy.md
+│   ├── Glossary_of_Terms.md
+│   ├── High_Level_Tech_Stack_Description.md
+│   ├── Schema_Registry.md
+│   ├── Tech Stack diagram.txt
+|   └── File_Tree_Structure.md
+├── src/
+│   └── modules/                                # <-- NEW: To group various functional code modules
+│       └── config_editor/                      # <-- NEW: The Python Config Editor module
+│           ├── __init__.py                     # Makes 'config_editor' a Python package
+│           ├── app.py                          # Main application script (Tkinter UI)
+│           ├── yaml_io.py                      # Module for YAML loading/saving logic
+│           ├── default_configs/                # To store default configuration files
+│           │   └── default_simulation_config.yaml # Will be created in task a0.1.2.1
+│           └── tests/                          # For unit and integration tests
+│               ├── __init__.py                 # Makes 'tests' a Python package
+│               └── test_yaml_io.py             # Tests for yaml_io.py
 
 File Descriptions:
 
