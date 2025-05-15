@@ -112,5 +112,149 @@ class TestYamlLoading(unittest.TestCase):
         self.assertIsInstance(data['string_val'], str)
         self.assertIsNone(data['null_val']) # PyYAML 'null' becomes None
 
+class TestYamlSaving(unittest.TestCase):
+
+    def setUp(self):
+        # Create a temporary directory for saving files
+        self.test_dir = tempfile.TemporaryDirectory()
+        self.temp_files_to_remove_on_cleanup = [] # For files not in TemporaryDirectory
+
+    def tearDown(self):
+        # Clean up the temporary directory and its contents
+        self.test_dir.cleanup()
+        for f_path in self.temp_files_to_remove_on_cleanup:
+            if os.path.exists(f_path):
+                os.remove(f_path)
+
+    # Test a0.1.1.2t: Basic saving of a dictionary
+    def test_save_basic_dictionary(self):
+        """Test saving a simple Python dictionary to a YAML file."""
+        data_to_save = {
+            "project": "Fish Eco Sim",
+            "version": "a0.1.1.2",
+            "active": True,
+            "max_agents": 100,
+            "depth": 25.5
+        }
+        filepath = os.path.join(self.test_dir.name, "basic_dict.yaml")
+
+        # --- This is where yaml_io.save_yaml_file would be called ---
+        yaml_io.save_yaml_file(data_to_save, filepath)
+
+        # --- Verification: Load the file back and check its content ---
+        self.assertTrue(os.path.exists(filepath))
+        with open(filepath, 'r') as f:
+            loaded_data = yaml.safe_load(f)
+        
+        self.assertEqual(loaded_data["project"], "Fish Eco Sim")
+        self.assertEqual(loaded_data["version"], "a0.1.1.2")
+        self.assertTrue(loaded_data["active"])
+        self.assertEqual(loaded_data["max_agents"], 100)
+        self.assertEqual(loaded_data["depth"], 25.5)
+
+    # Test a0.1.1.2t: Basic saving of a list
+    def test_save_basic_list(self):
+        """Test saving a simple Python list to a YAML file."""
+        data_to_save = ["apple", "banana", {"type": "citrus", "name": "orange"}, 123]
+        filepath = os.path.join(self.test_dir.name, "basic_list.yaml")
+
+        yaml_io.save_yaml_file(data_to_save, filepath)
+        
+        self.assertTrue(os.path.exists(filepath))
+        with open(filepath, 'r') as f:
+            loaded_data = yaml.safe_load(f)
+        
+        self.assertIsInstance(loaded_data, list)
+        self.assertEqual(len(loaded_data), 4)
+        self.assertEqual(loaded_data[0], "apple")
+        self.assertEqual(loaded_data[2]["name"], "orange")
+        self.assertEqual(loaded_data[3], 123)
+
+    # Test a0.1.1.2t: Saving nested structures
+    def test_save_nested_structure(self):
+        """Test saving a Python dictionary with nested lists and dictionaries."""
+        data_to_save = {
+            "simulation": {
+                "grid": {"width": 100, "height": 100},
+                "agents": [
+                    {"id": 1, "type": "fish_a", "energy": 100},
+                    {"id": 2, "type": "fish_b", "energy": 150}
+                ]
+            },
+            "logging_level": "INFO"
+        }
+        filepath = os.path.join(self.test_dir.name, "nested_structure.yaml")
+        yaml_io.save_yaml_file(data_to_save, filepath)
+
+        self.assertTrue(os.path.exists(filepath))
+        with open(filepath, 'r') as f:
+            loaded_data = yaml.safe_load(f)
+        
+        self.assertEqual(loaded_data["simulation"]["grid"]["width"], 100)
+        self.assertEqual(len(loaded_data["simulation"]["agents"]), 2)
+        self.assertEqual(loaded_data["simulation"]["agents"][1]["type"], "fish_b")
+        self.assertEqual(loaded_data["logging_level"], "INFO")
+
+    # Test a0.1.1.2t: Ensure correct YAML output format (block style, not flow style)
+    def test_save_output_format_block_style(self):
+        """Test that the YAML output is in block style by default."""
+        data_to_save = {"key1": "value1", "key2": {"sub_key": "sub_value"}}
+        filepath = os.path.join(self.test_dir.name, "block_style.yaml")
+
+        yaml_io.save_yaml_file(data_to_save, filepath)
+
+        self.assertTrue(os.path.exists(filepath))
+        with open(filepath, 'r') as f:
+            content = f.read()
+            # A simple check: flow style would likely have { } or [ ] on the same line for dicts/lists
+            # Block style has indentation.
+            self.assertNotIn("{", content) # This might be too strict if strings contain '{'
+            self.assertNotIn("}", content)
+            # A better check might be to look for newlines after keys
+            self.assertIn("key1: value1\n", content.replace('\r\n', '\n'))
+            self.assertIn("key2:\n", content.replace('\r\n', '\n'))
+            self.assertIn("  sub_key: sub_value\n", content.replace('\r\n', '\n'))
+
+
+    # Test a0.1.1.2t: Handling of None values (should be saved as null or similar)
+    def test_save_with_none_value(self):
+        """Test saving data containing None values."""
+        data_to_save = {"key_with_none": None, "another_key": "value"}
+        filepath = os.path.join(self.test_dir.name, "none_value.yaml")
+
+        yaml_io.save_yaml_file(data_to_save, filepath)
+
+        self.assertTrue(os.path.exists(filepath))
+        with open(filepath, 'r') as f:
+            loaded_data = yaml.safe_load(f)
+        self.assertIsNone(loaded_data["key_with_none"])
+        self.assertEqual(loaded_data["another_key"], "value")
+
+        # Additionally, check the raw output for 'null' (or empty if PyYAML does that for None)
+        with open(filepath, 'r') as f:
+           content = f.read()
+           self.assertIn("key_with_none: null\n", content.replace('\r\n', '\n')) # or check for empty if that's the style
+
+    # Test a0.1.1.2t: Overwriting an existing file
+    def test_save_overwrites_existing_file(self):
+        """Test that saving to an existing filepath overwrites it."""
+        filepath = os.path.join(self.test_dir.name, "overwrite_me.yaml")
+        
+        initial_data = {"message": "original content"}
+        # Create the file initially
+        with open(filepath, 'w') as f:
+           yaml.dump(initial_data, f)
+
+        new_data = {"message": "new content", "extra": True}
+        yaml_io.save_yaml_file(new_data, filepath)
+        
+        self.assertTrue(os.path.exists(filepath))
+        with open(filepath, 'r') as f:
+            loaded_data = yaml.safe_load(f)
+        
+        self.assertEqual(loaded_data["message"], "new content")
+        self.assertTrue(loaded_data["extra"])
+        self.assertNotIn("original content", str(loaded_data)) # Ensure old content is gone
+
 if __name__ == '__main__':
     unittest.main()

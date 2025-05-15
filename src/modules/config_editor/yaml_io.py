@@ -45,10 +45,40 @@ def load_yaml_file(filepath: str):
         # depending on how much detail the caller needs. For now, re-raise.
         raise
 
-# Placeholder for the save function, which will be implemented in a0.1.1.2
-def save_yaml_file(data, filepath):
+def save_yaml_file(data, filepath: str):
     """
-    Saves Python data to a specified YAML file.
-    (Implementation to be added in a0.1.1.2)
+    Saves Python data (dictionary or list) to a specified YAML file.
+    The output will be in block style for better readability.
+    This function will overwrite the file if it already exists.
+
+    Args:
+        data: The Python dictionary or list to save.
+        filepath (str): The path to the YAML file where data will be saved.
+
+    Raises:
+        IOError: If the file cannot be written (e.g., permission issues, invalid path parts).
+        yaml.YAMLError: If an error occurs during YAML serialization (less common for standard Python types).
+        Exception: For other unexpected errors.
     """
-    pass
+    try:
+        # Create parent directories if they don't exist.
+        # This is a good practice for a save function.
+        # For example, if filepath is "configs/new_set/sim.yaml" and "configs/new_set/" doesn't exist.
+        dir_name = os.path.dirname(filepath)
+        if dir_name: # Ensure dirname is not empty (e.g. if filepath is just 'file.yaml')
+            os.makedirs(dir_name, exist_ok=True)
+
+        with open(filepath, 'w') as file:
+            # default_flow_style=False ensures block style (more readable for configs)
+            # sort_keys=False preserves the order of keys in dictionaries (Python 3.7+ dicts are ordered)
+            # allow_unicode=True is good for handling various text characters
+            yaml.dump(data, file, default_flow_style=False, sort_keys=False, allow_unicode=True)
+    except IOError as e: # Covers issues like permission denied, disk full, etc.
+        # print(f"IOError: Could not write to YAML file at {filepath}. Error: {e}") # Optional logging
+        raise
+    except yaml.YAMLError as e: # Errors during the dumping process itself
+        # print(f"YAMLError: Could not dump data to YAML for {filepath}. Error: {e}") # Optional logging
+        raise
+    except Exception as e:
+        # print(f"An unexpected error occurred while saving {filepath}: {e}") # Optional logging
+        raise
