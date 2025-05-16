@@ -1,26 +1,27 @@
 # src/modules/config_editor/app.py
 
 import tkinter as tk
-from tkinter import filedialog, messagebox, Menu, ttk # Added ttk
+from tkinter import filedialog, messagebox, Menu, ttk
 import os
-from . import yaml_io
+# Ensure you have PyYAML installed: pip install PyYAML
+# For the yaml_io module, if it's in the same directory:
+from . import yaml_io # Relative import for package structure
 
 class ConfigEditorApp:
     def __init__(self, root_window):
         self.root = root_window
-        self.root.title("Fish Eco Sim - Config Editor Alpha (a0.1.3.1)")
+        self.root.title("Fish Eco Sim - Config Editor Alpha (a0.1.3.2)") # Updated version
         self.root.geometry("800x600")
 
         self.current_filepath = None
         self.config_data = None
-        self._editing_item_id = None 
-        self._editing_item_key = None 
+        self._editing_item_id = None # To store the iid of the item being edited
+        # self._editing_item_key = None # We'll get the key directly from item_id for flat dicts
 
         self.create_menu()
-        self.create_widgets() # New method to create main UI widgets
+        self.create_widgets()
 
     def create_menu(self):
-        # ... (menu creation code remains the same)
         menubar = Menu(self.root)
         self.root.config(menu=menubar)
 
@@ -33,147 +34,173 @@ class ConfigEditorApp:
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.exit_app)
 
-
     def create_widgets(self):
-        # Frame for Treeview and scrollbars
         tree_frame = ttk.Frame(self.root, padding="3 3 3 3")
         tree_frame.pack(expand=True, fill=tk.BOTH)
 
-        # Treeview widget to display YAML data
-        self.tree = ttk.Treeview(tree_frame, columns=("Value"), show="tree headings") # show="tree headings" to see column titles
-        
-        # Define column headings
-        self.tree.heading("#0", text="Key / Item", anchor=tk.W) # "#0" is the special tree column
+        self.tree = ttk.Treeview(tree_frame, columns=("Value"), show="tree headings")
+        self.tree.heading("#0", text="Key / Item", anchor=tk.W)
         self.tree.heading("Value", text="Value", anchor=tk.W)
+        self.tree.column("#0", width=250, minwidth=150, stretch=tk.NO) # Key column usually less wide
+        self.tree.column("Value", width=450, minwidth=200, stretch=tk.YES)
 
-        # Define column widths (optional, but can improve layout)
-        self.tree.column("#0", width=300, minwidth=150, stretch=tk.YES)
-        self.tree.column("Value", width=400, minwidth=200, stretch=tk.YES)
-
-        # Add scrollbars
         ysb = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
         xsb = ttk.Scrollbar(tree_frame, orient=tk.HORIZONTAL, command=self.tree.xview)
         self.tree.configure(yscrollcommand=ysb.set, xscrollcommand=xsb.set)
 
-        # Grid layout for tree and scrollbars within the frame
         self.tree.grid(row=0, column=0, sticky=tk.NSEW)
         ysb.grid(row=0, column=1, sticky=tk.NS)
         xsb.grid(row=1, column=0, sticky=tk.EW)
-
         tree_frame.grid_rowconfigure(0, weight=1)
         tree_frame.grid_columnconfigure(0, weight=1)
+
+        # Bind double-click event for editing
+        self.tree.bind("<Double-1>", self.on_tree_double_click)
+        # Allow editing on pressing Enter/Return when an item is selected
+        self.tree.bind("<Return>", self.on_tree_return_key)
+
+
+    def on_tree_return_key(self, event):
+        """Handle Return key press on a selected tree item to start editing its value."""
+        selected_item_id = self.tree.focus() # Get the iid of the focused item
+        if not selected_item_id:
+            return
         
-        # Placeholder for where data will be displayed.
-        # For now, we'll populate it in open_file upon loading.
+        # Simulate a double click on the value cell of the selected item
+        # We need to get the coordinates for the value cell of the selected_item_id
+        # This is a bit of a workaround to reuse the double-click logic
+        # A more direct way would be to call a refactored edit_cell(item_id) method.
+        
+        # For now, let's directly call the edit setup logic if we're sure it's a value cell we want to edit
+        # Get the bounding box of the "Value" column for the selected item
+        try:
+            # Ensure the column exists before getting bbox
+            # Treeview columns are #0, #1, #2, ...
+            # If "Value" is the first column after the tree column, it's #1
+            bbox = self.tree.bbox(selected_item_id, column="#1") # Column alias for 'Value'
+            if bbox: # If bbox is valid (item and column visible)
+                 self._setup_cell_editor(selected_item_id, column_id_to_edit="#1")
+        except tk.TclError:
+            # This can happen if the item or column is not visible or doesn't exist
+            pass
+
 
     def on_tree_double_click(self, event):
         """ Handle double-click event on the Treeview. """
         region = self.tree.identify_region(event.x, event.y)
+        column_id_clicked = self.tree.identify_column(event.x) # e.g., "#1" for "Value"
+        item_id = self.tree.identify_row(event.y)
+
+        if not item_id: # Clicked outside of any item
+            return
+
+        if region == "cell" and column_id_clicked == "#1": # "#1" is the "Value" column
+            self._setup_cell_editor(item_id, column_id_clicked)
+
+    def _setup_cell_editor(self, item_id, column_id_to_edit):
+        """Creates and places an Entry widget for editing a cell."""
+        # Prevent re-entry if an editor is already active for this item (though unlikely with current flow)
+        if hasattr(self, '_active_editor') and self._active_editor and self._active_editor.winfo_exists():
+            self._active_editor.destroy()
+
+        self._editing_item_id = item_id
+        # For a flat dictionary, the key is the item_id itself (as we set iid=key in display_config_data)
+        # Or, if using default iids, it's self.tree.item(item_id, "text")
+        # Let's assume iid IS the key for flat dicts for now.
+        item_key = self.tree.item(item_id, "text") # This should be the key for flat dict
+
+        x, y, width, height = self.tree.bbox(item_id, column=column_id_to_edit)
         
-        # We only want to edit if the "Value" column is clicked.
-        # identify_column returns '#0', '#1', etc. '#1' is our "Value" column.
-        column_id = self.tree.identify_column(event.x)
+        current_values_tuple = self.tree.item(item_id, "values")
+        if not current_values_tuple: return # Should have a value
+        current_value_str = str(current_values_tuple[0]) # Value is the first element
 
-        if region == "cell" and column_id == "#1": # "#1" corresponds to the "Value" column
-            item_id = self.tree.identify_row(event.y) # Get the iid of the clicked row
-            if not item_id:
-                return
+        entry_var = tk.StringVar(value=current_value_str)
+        self._active_editor = ttk.Entry(self.tree, textvariable=entry_var)
+        self._active_editor.place(x=x, y=y, width=width, height=height, anchor=tk.NW)
+        
+        self._active_editor.focus_set()
+        self._active_editor.selection_range(0, tk.END)
 
-            self._editing_item_id = item_id
-            # For a0.1.3.2 (flat dictionary), the key is the text of the item in the tree column
-            self._editing_item_key = self.tree.item(item_id, "text") 
+        # Pass item_key (actual dictionary key) to on_edit_confirm
+        self._active_editor.bind("<Return>", lambda e, ed=self._active_editor, iid=item_id, key=item_key: self.on_edit_confirm(e, ed, iid, key))
+        self._active_editor.bind("<KP_Enter>", lambda e, ed=self._active_editor, iid=item_id, key=item_key: self.on_edit_confirm(e, ed, iid, key))
+        self._active_editor.bind("<FocusOut>", lambda e, ed=self._active_editor, iid=item_id, key=item_key: self.on_edit_confirm(e, ed, iid, key))
+        self._active_editor.bind("<Escape>", lambda e, ed=self._active_editor: self.on_edit_cancel(ed))
 
-            # Get cell bounding box for placing the Entry widget
-            x, y, width, height = self.tree.bbox(item_id, column="Value")
+    def on_edit_cancel(self, editor_widget):
+        editor_widget.destroy()
+        self._editing_item_id = None
+        if hasattr(self, '_active_editor'):
+            del self._active_editor
 
-            # Get current value
-            current_values = self.tree.item(item_id, "values")
-            if not current_values: # Should not happen if column exists
-                return 
-            current_value_str = str(current_values[0]) # Value is the first (and only) in 'values' tuple
 
-            # Create and place the Entry widget
-            entry_var = tk.StringVar(value=current_value_str)
-            entry_editor = ttk.Entry(self.tree, textvariable=entry_var) # Place it on the tree itself
-            entry_editor.place(x=x, y=y, width=width, height=height, anchor=tk.NW)
-            
-            entry_editor.focus_set()
-            entry_editor.selection_range(0, tk.END)
+    def on_edit_confirm(self, event, entry_editor, item_id, dict_key):
+        # Check if editor still exists (might be destroyed by a quick FocusOut then Enter)
+        if not entry_editor.winfo_exists():
+            return
 
-            # Bind events to the Entry widget
-            entry_editor.bind("<Return>", lambda e, ed=entry_editor, iid=item_id, key=self._editing_item_key: self.on_edit_confirm(e, ed, iid, key))
-            entry_editor.bind("<KP_Enter>", lambda e, ed=entry_editor, iid=item_id, key=self._editing_item_key: self.on_edit_confirm(e, ed, iid, key)) # Numpad Enter
-            entry_editor.bind("<FocusOut>", lambda e, ed=entry_editor, iid=item_id, key=self._editing_item_key: self.on_edit_confirm(e, ed, iid, key))
-            entry_editor.bind("<Escape>", lambda e, ed=entry_editor: ed.destroy())
-
-    def on_edit_confirm(self, event, entry_editor, item_id, item_key_or_path):
         new_value_str = entry_editor.get()
-        entry_editor.destroy() # Destroy editor first
+        # It's important to destroy the editor *before* any messagebox that might steal focus
+        # and trigger another FocusOut on the (now defunct) editor.
+        entry_editor.destroy() 
+        if hasattr(self, '_active_editor'): # Clean up reference
+            del self._active_editor
 
-        # For a0.1.3.2, we assume a flat dictionary and item_key_or_path is the simple key.
-        # Later, for nested structures, item_key_or_path will be more complex (e.g., a tuple path).
-        
-        if isinstance(self.config_data, dict) and item_key_or_path in self.config_data:
-            original_value = self.config_data[item_key_or_path]
-            
-            # Attempt to cast to original type (very basic validation for now)
-            # More robust validation comes in a0.1.3.5
+
+        # For a0.1.3.2, we assume a flat dictionary and dict_key is the simple key.
+        if isinstance(self.config_data, dict) and dict_key in self.config_data:
+            original_value = self.config_data[dict_key]
+            new_value = None # Initialize to avoid UnboundLocalError
+
             try:
                 if isinstance(original_value, bool):
-                    # Handle common string representations of booleans
-                    if new_value_str.lower() in ("true", "yes", "1"):
+                    if new_value_str.lower() in ("true", "yes", "1", "on"):
                         new_value = True
-                    elif new_value_str.lower() in ("false", "no", "0"):
+                    elif new_value_str.lower() in ("false", "no", "0", "off"):
                         new_value = False
                     else:
-                        # If not a recognized boolean string, keep as string or raise error
-                        # For now, let's try to keep it as bool if original was bool
-                        # This part is tricky without full schema validation
-                        raise ValueError("Invalid boolean string") 
+                        raise ValueError(f"'{new_value_str}' is not a valid boolean representation.")
                 elif isinstance(original_value, int):
                     new_value = int(new_value_str)
                 elif isinstance(original_value, float):
                     new_value = float(new_value_str)
                 else: # Assume string or other types that don't need specific casting
                     new_value = new_value_str
-            except ValueError:
-                messagebox.showerror("Edit Error", f"Invalid value '{new_value_str}' for key '{item_key_or_path}'.\nCould not convert to original type: {type(original_value).__name__}")
-                # Re-display original value in tree (or do nothing if value wasn't changed yet)
-                # For simplicity now, the tree won't update on error here.
-                # self.tree.set(item_id, column="Value", value=str(original_value))
-                return
+                
+                # Update in-memory config_data
+                self.config_data[dict_key] = new_value
+                # Update Treeview display
+                self.tree.set(item_id, column="Value", value=str(new_value))
 
-            # Update in-memory config_data
-            self.config_data[item_key_or_path] = new_value
-            # Update Treeview display
-            self.tree.set(item_id, column="Value", value=str(new_value)) 
+            except ValueError as ve:
+                messagebox.showerror("Edit Error", f"Invalid value for '{dict_key}': '{new_value_str}'.\nType Error: {ve}\nPlease enter a value of type: {type(original_value).__name__}")
+                # To revert tree display if error:
+                self.tree.set(item_id, column="Value", value=str(original_value))
+                return
         
-        # Clear editing state
         self._editing_item_id = None
-        self._editing_item_key = None
+
 
     def display_config_data(self):
-        # Clear existing items in the treeview
         for item in self.tree.get_children():
             self.tree.delete(item)
 
         if self.config_data is None:
-            return # Nothing to display
+            return
 
-        # For a0.1.3.1, we assume self.config_data is a flat dictionary
         if isinstance(self.config_data, dict):
             for key, value in self.config_data.items():
-                # Insert item into the tree:
-                # parent='', index='end', iid=None (auto-generated), text=key, values=(value,)
-                # For a flat structure, parent is always '' (the root)
-                self.tree.insert("", tk.END, text=str(key), values=(str(value),)) 
+                # Using key as item id (iid) for flat dictionaries is simple and effective here.
+                # This makes it easy to get the key back when an item is selected/edited.
+                self.tree.insert("", tk.END, text=str(key), values=(str(value),), iid=str(key))
         elif isinstance(self.config_data, list):
-            # Rudimentary list display for flat lists (though flat_test.yaml is a dict)
             for index, item in enumerate(self.config_data):
-                self.tree.insert("", tk.END, text=f"[{index}]", values=(str(item),))
-        else:
-            # Handle cases where config_data might be a single scalar (e.g. just a number or string from YAML)
-            self.tree.insert("", tk.END, text="(root)", values=(str(self.config_data),))
+                # For lists, using a prefixed index as iid. Editing lists is more complex.
+                list_item_id = f"__list_item_{index}__"
+                self.tree.insert("", tk.END, text=f"[{index}]", values=(str(item),), iid=list_item_id)
+        else: # Scalar value at root
+            self.tree.insert("", tk.END, text="(root)", values=(str(self.config_data),), iid="__root_scalar__")
 
 
     def open_file(self):
@@ -182,47 +209,35 @@ class ConfigEditorApp:
             filetypes=(("YAML files", "*.yaml *.yml"), ("All files", "*.*"))
         )
         if not filepath:
-            self.display_config_data() # Clear display if user cancelled
+            # self.display_config_data() # Clear display if user cancelled, or do nothing
             return
 
         try:
             self.config_data = yaml_io.load_yaml_file(filepath)
-            self.current_filepath = filepath # Set current_filepath only on successful load
-            if self.config_data is not None:
+            self.current_filepath = filepath
+            if self.config_data is not None: # Could be an empty file (None) or actual data
                 self.root.title(f"Fish Eco Sim - Config Editor Alpha - {os.path.basename(filepath)}")
-            else: # Handles empty YAML file which results in self.config_data being None
+            else: # Handles empty YAML file
                 self.root.title(f"Fish Eco Sim - Config Editor Alpha - {os.path.basename(filepath)} (Empty)")
-            
-            self.display_config_data() # Display the newly loaded data
-
-            # No need for messagebox here anymore as data will be displayed (or lack thereof)
-            # messagebox.showinfo("File Opened", f"Successfully loaded: {os.path.basename(filepath)}")
-
+            self.display_config_data() # Display the newly loaded data or clear if empty
         except FileNotFoundError:
             messagebox.showerror("Error", f"File not found: {filepath}")
-            self.current_filepath = None
-            self.config_data = None
-            self.root.title("Fish Eco Sim - Config Editor Alpha") # Reset title
+            self.current_filepath = None; self.config_data = None
+            self.root.title("Fish Eco Sim - Config Editor Alpha")
             self.display_config_data() # Clear display
         except yaml_io.yaml.YAMLError as e:
             messagebox.showerror("Error", f"Error parsing YAML file: {os.path.basename(filepath)}\n\n{e}")
-            self.current_filepath = None
-            self.config_data = None
-            self.root.title("Fish Eco Sim - Config Editor Alpha") # Reset title
-            self.display_config_data() # Clear display
+            self.current_filepath = None; self.config_data = None
+            self.root.title("Fish Eco Sim - Config Editor Alpha")
+            self.display_config_data()
         except Exception as e:
             messagebox.showerror("Error", f"An unexpected error occurred while opening file:\n{e}")
-            self.current_filepath = None
-            self.config_data = None
-            self.root.title("Fish Eco Sim - Config Editor Alpha") # Reset title
-            self.display_config_data() # Clear display
+            self.current_filepath = None; self.config_data = None
+            self.root.title("Fish Eco Sim - Config Editor Alpha")
+            self.display_config_data()
 
     def save_file(self):
-        # ... (save_file code remains the same)
         if self.current_filepath:
-            if self.config_data is None:
-                pass 
-
             try:
                 yaml_io.save_yaml_file(self.config_data, self.current_filepath)
                 messagebox.showinfo("File Saved", f"Successfully saved: {os.path.basename(self.current_filepath)}")
@@ -232,14 +247,12 @@ class ConfigEditorApp:
             self.save_file_as()
 
     def save_file_as(self):
-        # ... (save_file_as code remains the same)
         filepath = filedialog.asksaveasfilename(
             title="Save YAML File As...",
             defaultextension=".yaml",
             filetypes=(("YAML files", "*.yaml *.yml"), ("All files", "*.*"))
         )
-        if not filepath: 
-            return
+        if not filepath: return
 
         try:
             yaml_io.save_yaml_file(self.config_data, filepath)
@@ -249,9 +262,7 @@ class ConfigEditorApp:
         except Exception as e:
             messagebox.showerror("Error", f"Could not save file: {os.path.basename(filepath)}\n\n{e}")
 
-
     def exit_app(self):
-        # ... (exit_app code remains the same)
         self.root.quit()
 
 if __name__ == '__main__':
