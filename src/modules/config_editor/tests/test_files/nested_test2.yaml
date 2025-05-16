@@ -1,0 +1,19 @@
+application:
+  name: Nested App
+  version: '2.1'
+  settings:
+    ui:
+      theme: dark
+      font_size: 12
+    features:
+      feature_a_enabled: true
+      feature_b_settings:
+        retries: 3
+        timeout: 5000
+  plugins:
+  - name: Logger
+    version: '1.1'
+  - name: Uploader
+    config:
+      chunk_size: 1024
+      active: false
