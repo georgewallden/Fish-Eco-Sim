@@ -104,15 +104,15 @@ All versions in this phase will follow the `a0.X.Y.Z` scheme as defined in the `
 This section will detail the sequence of Major Alpha Feature Sets (`a0.X`) and their constituent Sub-Feature Milestones (`a0.X.Y`) and Atomic Tasks (`a0.X.Y.Z`).
 
 - `a0.1.Y.Z`: Configuration Management System (`Python` UI) - Basic Editor
-    - `a0.1.1.Z`: Basic UI Framework & `YAML` File I/O
-        - `a0.1.1.1t`: Define and implement unit tests for `YAML` file loading functionality (e.g., handling valid `YAML`, empty files, basic error conditions).
-        - `a0.1.1.1`: Implement `Python` function to reliably load data from a specified `YAML` file into a `Python` dictionary/list structure (using `PyYAML` or `ruamel.yaml`).
-        - `a0.1.1.2t`: Define and implement unit tests for `YAML` file saving functionality (e.g., ensuring correct `YAML` output, handling different data types).
-        - `a0.1.1.2`: Implement `Python` function to save a `Python` dictionary/list structure to a specified `YAML` file.
-        - `a0.1.1.3t`: Define test cases/manual verification steps for basic UI window creation and "Open File" / "Save File As" / "Save" dialog interactions.
-        - `a0.1.1.3`: Set up a basic `Python` GUI window (e.g., using `Tkinter`). Implement "File" menu with "Open," "Save," "Save As" options that use the `YAML` loading/saving functions (`a0.1.1.1`, `a0.1.1.2`). (No display/editing of content yet).
-        - `a0.1.1.4t`: (This could be part of defining `a0.1.1t` - an integration test) Define integration tests to ensure the UI file operations correctly call the `YAML` I/O functions and handle typical user flows.
-        - `a0.1.1.4`: Implement integration tests for `a0.1.1.1` through `a0.1.1.3` working together. Ensure all unit tests from previous `Zt` tasks pass.
+    X `a0.1.1.Z`: Basic UI Framework & `YAML` File I/O
+        X `a0.1.1.1t`: Define and implement unit tests for `YAML` file loading functionality (e.g., handling valid `YAML`, empty files, basic error conditions).
+        X `a0.1.1.1`: Implement `Python` function to reliably load data from a specified `YAML` file into a `Python` dictionary/list structure (using `PyYAML` or `ruamel.yaml`).
+        X `a0.1.1.2t`: Define and implement unit tests for `YAML` file saving functionality (e.g., ensuring correct `YAML` output, handling different data types).
+        X `a0.1.1.2`: Implement `Python` function to save a `Python` dictionary/list structure to a specified `YAML` file.
+        X `a0.1.1.3t`: Define test cases/manual verification steps for basic UI window creation and "Open File" / "Save File As" / "Save" dialog interactions.
+        X `a0.1.1.3`: Set up a basic `Python` GUI window (e.g., using `Tkinter`). Implement "File" menu with "Open," "Save," "Save As" options that use the `YAML` loading/saving functions (`a0.1.1.1`, `a0.1.1.2`). (No display/editing of content yet).
+        X `a0.1.1.4t`: (This could be part of defining `a0.1.1t` - an integration test) Define integration tests to ensure the UI file operations correctly call the `YAML` I/O functions and handle typical user flows.
+        X `a0.1.1.4`: Implement integration tests for `a0.1.1.1` through `a0.1.1.3` working together. Ensure all unit tests from previous `Zt` tasks pass.
     - `a0.1.2.Z`: Define Initial Basic Configuration Parameters & Structure
         - `a0.1.2.1t`: Define desired structure and key placeholder parameters for a sample `simulation_config.yaml` file (covering basic settings for future Sim, Orch, AI, UI, Log layers).
         - `a0.1.2.1`: Create a sample `default_simulation_config.yaml` file with a hierarchical structure and placeholder values for:

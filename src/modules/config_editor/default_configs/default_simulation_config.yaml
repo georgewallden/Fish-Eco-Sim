@@ -1,0 +1,41 @@
+# UI Layer Configuration
+# Parameters relevant to the main simulation visualization UI
+ui_layer:
+  window_settings: # Grouping display-related settings
+    window_width: 1280
+    window_height: 720
+  performance:
+    default_fps: 30
+
+# Simulation Layer Configuration
+# Parameters for the Rust Simulation Engine Worker
+simulation_layer:
+  world_definition: # Grouping world-grid related settings
+    world_width: 100  # Number of cells
+    world_height: 100 # Number of cells
+  initial_conditions:
+    initial_food_count: 50
+  agent_defaults: # Default parameters for newly spawned agents
+    default_agent_energy: 1000
+
+# Orchestrator Layer Configuration
+# Parameters for the Go Orchestrator service
+orchestrator_layer:
+  communication:
+    nats_address: "nats://localhost:4222" # Default NATS server address
+    # Port the Orchestrator's gRPC server listens on for commands from UI/ExperimentManager
+    orchestrator_grpc_port: 50050 
+
+# Agent Intelligence Layer Configuration
+# Parameters for the Python AI services
+agent_intelligence_layer:
+  agent_behavior:
+    default_ai_mode: "random_walk" # e.g., "random_walk", "basic_drl_inference", "scripted"
+
+# Logging Layer Configuration
+# Parameters for the Python Logging service
+logging_layer:
+  output:
+    log_output_directory: "./sim_logs" # Relative to where the logger service runs, or an absolute path
+  settings:
+    log_level: "INFO" # e.g., DEBUG, INFO, WARNING, ERROR
