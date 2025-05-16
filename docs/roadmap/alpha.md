@@ -113,18 +113,18 @@ This section will detail the sequence of Major Alpha Feature Sets (`a0.X`) and t
         X `a0.1.1.3`: Set up a basic `Python` GUI window (e.g., using `Tkinter`). Implement "File" menu with "Open," "Save," "Save As" options that use the `YAML` loading/saving functions (`a0.1.1.1`, `a0.1.1.2`). (No display/editing of content yet).
         X `a0.1.1.4t`: (This could be part of defining `a0.1.1t` - an integration test) Define integration tests to ensure the UI file operations correctly call the `YAML` I/O functions and handle typical user flows.
         X `a0.1.1.4`: Implement integration tests for `a0.1.1.1` through `a0.1.1.3` working together. Ensure all unit tests from previous `Zt` tasks pass.
-    - `a0.1.2.Z`: Define Initial Basic Configuration Parameters & Structure
-        - `a0.1.2.1t`: Define desired structure and key placeholder parameters for a sample `simulation_config.yaml` file (covering basic settings for future Sim, Orch, AI, UI, Log layers).
-        - `a0.1.2.1`: Create a sample `default_simulation_config.yaml` file with a hierarchical structure and placeholder values for:
-            - UI Layer: `window_width`, `window_height`, `default_fps`.
-            - Simulation Layer (template for `Rust` Worker): `world_width`, `world_height`, `initial_food_count`, `default_agent_energy`.
-            - Orchestrator Layer: `nats_address`, `grpc_client_port`.
-            - Agent Intelligence Layer: `default_ai_mode` (e.g., "random_walk").
-            - Logging Layer: `log_output_directory`, `log_level_placeholder`.
+    X `a0.1.2.Z`: Define Initial Basic Configuration Parameters & Structure
+        X `a0.1.2.1t`: Define desired structure and key placeholder parameters for a sample `simulation_config.yaml` file (covering basic settings for future Sim, Orch, AI, UI, Log layers).
+        X `a0.1.2.1`: Create a sample `default_simulation_config.yaml` file with a hierarchical structure and placeholder values for:
+            X UI Layer: `window_width`, `window_height`, `default_fps`.
+            X Simulation Layer (template for `Rust` Worker): `world_width`, `world_height`, `initial_food_count`, `default_agent_energy`.
+            X Orchestrator Layer: `nats_address`, `grpc_client_port`.
+            X Agent Intelligence Layer: `default_ai_mode` (e.g., "random_walk").
+            X Logging Layer: `log_output_directory`, `log_level_placeholder`.
             (This task is about defining the content of a useful starting config file that the UI will eventually load and edit).
     - `a0.1.3.Z`: Displaying and Editing Loaded `YAML` Structure in UI
-        - `a0.1.3.1t`: Define test cases for displaying a simple, flat `YAML` structure (e.g., top-level key-value pairs) in the UI.
-        - `a0.1.3.1`: Implement UI component(s) (e.g., using `Tkinter` labels and entry fields, or a simple list/tree view widget) to display top-level key-value pairs from the loaded `YAML` data. Keys are read-only, values are initially just displayed.
+        X `a0.1.3.1t`: Define test cases for displaying a simple, flat `YAML` structure (e.g., top-level key-value pairs) in the UI.
+        X `a0.1.3.1`: Implement UI component(s) (e.g., using `Tkinter` labels and entry fields, or a simple list/tree view widget) to display top-level key-value pairs from the loaded `YAML` data. Keys are read-only, values are initially just displayed.
         - `a0.1.3.2t`: Define test cases for making basic scalar values (strings, numbers, booleans) editable in the UI.
         - `a0.1.3.2`: Make the displayed scalar values (strings, numbers, booleans) editable. When a user changes a value in an entry field, update the corresponding value in the in-memory `Python` dictionary.
         - `a0.1.3.3t`: Define test cases for displaying nested `YAML` structures (dictionaries within dictionaries, lists).

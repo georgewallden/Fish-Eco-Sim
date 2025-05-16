@@ -32,16 +32,22 @@ FISH ECO SIM
 │   ├── Tech Stack diagram.txt
 |   └── File_Tree_Structure.md
 ├── src/
-│   └── modules/                                # <-- NEW: To group various functional code modules
-│       └── config_editor/                      # <-- NEW: The Python Config Editor module
-│           ├── __init__.py                     # Makes 'config_editor' a Python package
-│           ├── app.py                          # Main application script (Tkinter UI)
-│           ├── yaml_io.py                      # Module for YAML loading/saving logic
-│           ├── default_configs/                # To store default configuration files
-│           │   └── default_simulation_config.yaml # Will be created in task a0.1.2.1
-│           └── tests/                          # For unit and integration tests
-│               ├── __init__.py                 # Makes 'tests' a Python package
-│               └── test_yaml_io.py             # Tests for yaml_io.py
+│   └── modules/                                
+│       └── config_editor/                      
+│           ├── __init__.py                     
+│           ├── app.py                          
+│           ├── yaml_io.py                      
+│           ├── default_configs/                
+│           │   └── default_simulation_config.yaml 
+│           └── tests/                          
+│               ├── __init__.py                 
+│               ├── test_yaml_io.py    
+│               └── test_files/
+│                   ├── malformed.yaml
+│                   ├── valid.yaml
+│                   ├── valid2.yaml
+│                   └── flat_test.yaml        
+
 
 File Descriptions:
 
