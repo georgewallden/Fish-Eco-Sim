@@ -125,8 +125,8 @@ This section will detail the sequence of Major Alpha Feature Sets (`a0.X`) and t
     - `a0.1.3.Z`: Displaying and Editing Loaded `YAML` Structure in UI
         X `a0.1.3.1t`: Define test cases for displaying a simple, flat `YAML` structure (e.g., top-level key-value pairs) in the UI.
         X `a0.1.3.1`: Implement UI component(s) (e.g., using `Tkinter` labels and entry fields, or a simple list/tree view widget) to display top-level key-value pairs from the loaded `YAML` data. Keys are read-only, values are initially just displayed.
-        - `a0.1.3.2t`: Define test cases for making basic scalar values (strings, numbers, booleans) editable in the UI.
-        - `a0.1.3.2`: Make the displayed scalar values (strings, numbers, booleans) editable. When a user changes a value in an entry field, update the corresponding value in the in-memory `Python` dictionary.
+        X `a0.1.3.2t`: Define test cases for making basic scalar values (strings, numbers, booleans) editable in the UI.
+        X `a0.1.3.2`: Make the displayed scalar values (strings, numbers, booleans) editable. When a user changes a value in an entry field, update the corresponding value in the in-memory `Python` dictionary.
         - `a0.1.3.3t`: Define test cases for displaying nested `YAML` structures (dictionaries within dictionaries, lists).
         - `a0.1.3.3`: Enhance the UI to recursively display nested structures. This might involve: A tree view widget is ideal here. Or dynamically generating UI sections for each level of nesting.
         - `a0.1.3.4t`: Define test cases for editing values within nested structures.
