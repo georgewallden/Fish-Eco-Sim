@@ -103,7 +103,7 @@ All versions in this phase will follow the `a0.X.Y.Z` scheme as defined in the `
 
 This section will detail the sequence of Major Alpha Feature Sets (`a0.X`) and their constituent Sub-Feature Milestones (`a0.X.Y`) and Atomic Tasks (`a0.X.Y.Z`).
 
-- `a0.1.Y.Z`: Configuration Management System (`Python` UI) - Basic Editor
+X `a0.1.Y.Z`: Configuration Management System (`Python` UI) - Basic Editor
     X `a0.1.1.Z`: Basic UI Framework & `YAML` File I/O
         X `a0.1.1.1t`: Define and implement unit tests for `YAML` file loading functionality (e.g., handling valid `YAML`, empty files, basic error conditions).
         X `a0.1.1.1`: Implement `Python` function to reliably load data from a specified `YAML` file into a `Python` dictionary/list structure (using `PyYAML` or `ruamel.yaml`).
@@ -122,19 +122,19 @@ This section will detail the sequence of Major Alpha Feature Sets (`a0.X`) and t
             X Agent Intelligence Layer: `default_ai_mode` (e.g., "random_walk").
             X Logging Layer: `log_output_directory`, `log_level_placeholder`.
             (This task is about defining the content of a useful starting config file that the UI will eventually load and edit).
-    - `a0.1.3.Z`: Displaying and Editing Loaded `YAML` Structure in UI
+    X `a0.1.3.Z`: Displaying and Editing Loaded `YAML` Structure in UI
         X `a0.1.3.1t`: Define test cases for displaying a simple, flat `YAML` structure (e.g., top-level key-value pairs) in the UI.
         X `a0.1.3.1`: Implement UI component(s) (e.g., using `Tkinter` labels and entry fields, or a simple list/tree view widget) to display top-level key-value pairs from the loaded `YAML` data. Keys are read-only, values are initially just displayed.
         X `a0.1.3.2t`: Define test cases for making basic scalar values (strings, numbers, booleans) editable in the UI.
         X `a0.1.3.2`: Make the displayed scalar values (strings, numbers, booleans) editable. When a user changes a value in an entry field, update the corresponding value in the in-memory `Python` dictionary.
-        - `a0.1.3.3t`: Define test cases for displaying nested `YAML` structures (dictionaries within dictionaries, lists).
-        - `a0.1.3.3`: Enhance the UI to recursively display nested structures. This might involve: A tree view widget is ideal here. Or dynamically generating UI sections for each level of nesting.
-        - `a0.1.3.4t`: Define test cases for editing values within nested structures.
-        - `a0.1.3.4`: Ensure that edits made to values within nested structures correctly update the in-memory `Python` dictionary.
-        - `a0.1.3.5t`: Define basic validation tests (e.g., if a field is supposed to be a number, what happens if the user types text?).
-        - `a0.1.3.5`: Implement rudimentary client-side validation for edited fields (e.g., attempt to cast to expected type like `int` or `float`; show a simple error message if it fails). (More advanced schema-based validation comes later).
-        - `a0.1.3.6t`: Define integration tests for the display and edit functionality working with the "Save" feature from `a0.1.1.Z`.
-        - `a0.1.3.6`: Ensure that after editing values in the UI, the "Save" functionality correctly writes the modified in-memory `Python` dictionary back to the `YAML` file. Perform manual verification of saved file content. Implement integration tests.
+        X `a0.1.3.3t`: Define test cases for displaying nested `YAML` structures (dictionaries within dictionaries, lists).
+        X `a0.1.3.3`: Enhance the UI to recursively display nested structures. This might involve: A tree view widget is ideal here. Or dynamically generating UI sections for each level of nesting.
+        X `a0.1.3.4t`: Define test cases for editing values within nested structures.
+        X `a0.1.3.4`: Ensure that edits made to values within nested structures correctly update the in-memory `Python` dictionary.
+        X `a0.1.3.5t`: Define basic validation tests (e.g., if a field is supposed to be a number, what happens if the user types text?).
+        X `a0.1.3.5`: Implement rudimentary client-side validation for edited fields (e.g., attempt to cast to expected type like `int` or `float`; show a simple error message if it fails). (More advanced schema-based validation comes later).
+        X `a0.1.3.6t`: Define integration tests for the display and edit functionality working with the "Save" feature from `a0.1.1.Z`.
+        X `a0.1.3.6`: Ensure that after editing values in the UI, the "Save" functionality correctly writes the modified in-memory `Python` dictionary back to the `YAML` file. Perform manual verification of saved file content. Implement integration tests.
 
 - `a0.2.Y.Z`: Define Core Event & Data Transfer Payload Schemas
     - `a0.2.1.Z`: Initial `Protobuf` & `FlatBuffer` Schema Definitions
