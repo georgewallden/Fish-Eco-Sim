@@ -1,14 +1,13 @@
 Documentation Table of Contents (File Tree Structure)
 
-Version: 2 - Alpha a0.1.1.1
+Version: 3 - Alpha a0.2.1.1
 
 This document provides an index to all major design, planning, and architectural documents for the Fish Eco Sim project, reflecting the file structure.
 Use code with caution.
 
-FISH ECO SIM
-├── README.md
-└── docs
-├   ├── layers
+FISH ECO SIM/
+├── docs
+│   ├── layers
 │   │   ├── 1. Simulation Layer.md
 │   │   ├── 2. Orchestration Layer.md
 │   │   ├── 3. Communication Layer.md
@@ -31,22 +30,45 @@ FISH ECO SIM
 │   ├── Schema_Registry.md
 │   ├── Tech Stack diagram.txt
 |   └── File_Tree_Structure.md
+├── schemas/
+│   ├── flatbuffers/ 
+│   └── protobufs/ 
+├── scripts/
 ├── src/
-│   └── modules/                                
-│       └── config_editor/                      
-│           ├── __init__.py                     
-│           ├── app.py                          
-│           ├── yaml_io.py                      
-│           ├── default_configs/                
-│           │   └── default_simulation_config.yaml 
-│           └── tests/                          
-│               ├── __init__.py                 
-│               ├── test_yaml_io.py    
-│               └── test_files/
-│                   ├── malformed.yaml
-│                   ├── valid.yaml
-│                   ├── valid2.yaml
-│                   └── flat_test.yaml        
+│   ├── generated_schemas/
+│   │       ├── go/                          
+│   │       │   ├── flatbuffers                         
+│   │       │   └── protobufs
+│   │       ├── python/                          
+│   │       │   ├── flatbuffers                         
+│   │       │   └── protobufs
+│   │       └── rust/                          
+│   │           ├── flatbuffers                         
+│   │           └── protobufs     
+│   └── modules/
+│       ├── agent_intelligence/
+│       ├── config_editor/                      
+│       │   ├── __init__.py                     
+│       │   ├── app.py                          
+│       │   ├── yaml_io.py                      
+│       │   ├── default_configs/                
+│       │   │   └── default_simulation_config.yaml 
+│       │   └── tests/                          
+│       │       ├── __init__.py                 
+│       │       ├── test_yaml_io.py    
+│       │       └── test_files/
+│       │           ├── malformed.yaml
+│       │           ├── valid.yaml
+│       │           ├── valid2.yaml
+│       │           └── flat_test.yaml  
+│       ├── logging_service/
+│       ├── orchestrator/                               
+│       └── simulation_engine/
+├── .gitignore
+├── File_Tree_Structure.md
+├── License.txt
+└── README.md                              
+              
 
 
 File Descriptions:
