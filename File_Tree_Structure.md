@@ -32,7 +32,9 @@ FISH ECO SIM/
 |   └── File_Tree_Structure.md
 ├── schemas/
 │   ├── flatbuffers/ 
+│   │   └── world_state.fbs
 │   └── protobufs/ 
+│   │   └── generic_event.proto
 ├── scripts/
 ├── src/
 │   ├── generated_schemas/

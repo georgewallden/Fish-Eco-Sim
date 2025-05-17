@@ -1,0 +1,61 @@
+// File: schemas/flatbuffers/world_state.fbs
+
+// Namespace for generated code, e.g., fes::simulation::state in C++/Rust,
+// or fes.simulation.state in Python/Go.
+namespace fes.simulation.state;
+
+// A simple 2D vector for positions.
+// Structs are good for fixed-size, frequently accessed data, stored inline.
+struct Vec2f {
+  x:float32;
+  y:float32;
+}
+
+// Represents the state of a single agent in the simulation.
+// Tables are for objects with potentially optional fields and variable sizes.
+table AgentState {
+  id:string (key);       // Unique identifier for the agent.
+  pos:Vec2f (required);  // Position of the agent.
+  
+  // --- Optional fields for future expansion (not strictly needed for initial Alpha visualization) ---
+  // energy:float32;
+  // agent_type_key:string; // e.g., "fish_type_a", "predator_x" for rendering hints
+  // orientation_degrees:float32;
+}
+
+// Represents the state of a single food pellet.
+table FoodPelletState {
+  id:string (key);       // Unique identifier for the food pellet.
+  pos:Vec2f (required);  // Position of the food pellet.
+
+  // --- Optional fields for future expansion ---
+  // energy_value:float32;
+}
+
+// The main message type for broadcasting updates about the simulation world state.
+// This is intended for bulk updates, primarily for visualization and logging.
+table WorldStateUpdate {
+  // Timestamp of when this world state snapshot was generated,
+  // in nanoseconds since the Unix epoch (UTC).
+  timestamp_ns:int64;
+
+  // Identifier for the simulation run this state belongs to.
+  simulation_id:string (required);
+
+  // Current simulation tick or step number corresponding to this state.
+  current_tick:uint64;
+
+  // A vector (list) of all active agents and their states.
+  agents:[AgentState];
+
+  // A vector (list) of all active food pellets and their states.
+  food_pellets:[FoodPelletState];
+
+  // --- Optional world properties (can be added later if needed by consumers) ---
+  // world_width:float32;  // Total width of the simulation world grid/area
+  // world_height:float32; // Total height of the simulation world grid/area
+}
+
+// Declares WorldStateUpdate as the root table type for this schema file.
+// This allows direct serialization/deserialization of WorldStateUpdate messages.
+root_type WorldStateUpdate;
