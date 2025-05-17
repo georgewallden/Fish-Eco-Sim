@@ -142,8 +142,8 @@ X `a0.1.Y.Z`: Configuration Management System (`Python` UI) - Basic Editor
         X `a0.2.1.1`: Create the `.proto` file for `GenericEventRequest` (including fields like `event_type_key`, `event_payload bytes`, `timestamp_ns`, `worker_id`, `simulation_id`, `payload_format_hint`).
         X `a0.2.1.2t`: Review requirements and finalize field definitions for the `WorldStateUpdate` `FlatBuffer` schema (for efficient transfer of bulk world data, e.g., lists of agent IDs & positions, food IDs & positions).
         X `a0.2.1.2`: Create the `.fbs` file for `WorldStateUpdate`.
-        - `a0.2.1.3t`: Review requirements and finalize field definitions for basic `AgentObservation` and `AgentAction` `Protobuf` messages (minimal fields needed for Alpha PoC AI interaction).
-        - `a0.2.1.3`: Create a `.proto` file defining the `AgentObservation` and `AgentAction` `Protobuf` messages.
+        X `a0.2.1.3t`: Review requirements and finalize field definitions for basic `AgentObservation` and `AgentAction` `Protobuf` messages (minimal fields needed for Alpha PoC AI interaction).
+        X `a0.2.1.3`: Create a `.proto` file defining the `AgentObservation` and `AgentAction` `Protobuf` messages.
         - `a0.2.1.4t`: Define procedures and expected outcomes for schema code generation across target languages.
         - `a0.2.1.4`: Implement build scripts or manual procedures to generate `Protobuf`/`FlatBuffer` code from all defined `.proto` and `.fbs` files for `Rust`, `Go`, and `Python`. Verify successful code generation without compilation errors in each language.
         - `a0.2.1.5t`: Design round-trip serialization/deserialization tests for each defined message type (`GenericEventRequest`, `WorldStateUpdate`, `AgentObservation`, `AgentAction`) in each target language.

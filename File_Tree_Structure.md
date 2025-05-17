@@ -34,6 +34,7 @@ FISH ECO SIM/
 │   ├── flatbuffers/ 
 │   │   └── world_state.fbs
 │   └── protobufs/ 
+│   │   ├── agent_comms.proto
 │   │   └── generic_event.proto
 ├── scripts/
 ├── src/
