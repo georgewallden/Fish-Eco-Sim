@@ -138,8 +138,8 @@ X `a0.1.Y.Z`: Configuration Management System (`Python` UI) - Basic Editor
 
 - `a0.2.Y.Z`: Define Core Event & Data Transfer Payload Schemas
     - `a0.2.1.Z`: Initial `Protobuf` & `FlatBuffer` Schema Definitions
-        - `a0.2.1.1t`: Review requirements and finalize field definitions for the `GenericEventRequest` `Protobuf` message (to serve as a general event wrapper).
-        - `a0.2.1.1`: Create the `.proto` file for `GenericEventRequest` (including fields like `event_type_key`, `event_payload bytes`, `timestamp_ns`, `worker_id`, `simulation_id`, `payload_format_hint`).
+        X `a0.2.1.1t`: Review requirements and finalize field definitions for the `GenericEventRequest` `Protobuf` message (to serve as a general event wrapper).
+        X `a0.2.1.1`: Create the `.proto` file for `GenericEventRequest` (including fields like `event_type_key`, `event_payload bytes`, `timestamp_ns`, `worker_id`, `simulation_id`, `payload_format_hint`).
         - `a0.2.1.2t`: Review requirements and finalize field definitions for the `WorldStateUpdate` `FlatBuffer` schema (for efficient transfer of bulk world data, e.g., lists of agent IDs & positions, food IDs & positions).
         - `a0.2.1.2`: Create the `.fbs` file for `WorldStateUpdate`.
         - `a0.2.1.3t`: Review requirements and finalize field definitions for basic `AgentObservation` and `AgentAction` `Protobuf` messages (minimal fields needed for Alpha PoC AI interaction).

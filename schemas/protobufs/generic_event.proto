@@ -1,0 +1,47 @@
+// File: schemas/protobufs/generic_event.proto
+syntax = "proto3";
+
+// Option to define a package for better namespacing, especially if you have many .proto files.
+// This affects the generated code's package/module structure.
+// Example: package fish_eco_sim.events;
+// For now, let's keep it simple without a top-level package specific to this file,
+// or we can add a general one like:
+package fes.common.events; // fish_eco_sim.common.events
+
+// GenericEventRequest serves as a common wrapper for various events
+// transmitted within the Fish Eco Sim system.
+message GenericEventRequest {
+  // Unique identifier for this specific event instance (e.g., a UUID string).
+  string event_id = 1;
+
+  // A key string identifying the type of event contained in the event_payload.
+  // Examples: "agent.spawn", "world.tick", "simulation.ended".
+  string event_type_key = 2;
+
+  // The serialized payload of the specific event. The format is indicated
+  // by payload_content_type and implicitly by event_type_key.
+  bytes event_payload = 3;
+
+  // UTC timestamp of when the event occurred or was generated,
+  // represented as nanoseconds since the Unix epoch.
+  int64 timestamp_ns = 4;
+
+  // Identifier of the service, worker, or component that originated this event.
+  // Examples: "sim-worker-01", "orchestrator", "ui-client-userX".
+  string source_worker_id = 5;
+
+  // Identifier for the specific simulation run this event pertains to.
+  // Can be empty if the event is not specific to a simulation run.
+  string simulation_id = 6;
+
+  // Describes the format and type of the event_payload.
+  // Helps consumers correctly deserialize the event_payload.
+  // Examples: "application/protobuf; message=fes.simulation.AgentSpawnedEvent",
+  //           "application/json",
+  //           "application/vnd.google.flatbuffers; type=WorldStateSnapshot"
+  string payload_content_type = 7;
+
+  // Optional identifier used to correlate this event with other events or requests
+  // in a larger workflow or conversation. Can be empty if not applicable.
+  string correlation_id = 8;
+}
