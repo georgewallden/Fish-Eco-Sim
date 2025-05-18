@@ -144,8 +144,8 @@ X `a0.1.Y.Z`: Configuration Management System (`Python` UI) - Basic Editor
         X `a0.2.1.2`: Create the `.fbs` file for `WorldStateUpdate`.
         X `a0.2.1.3t`: Review requirements and finalize field definitions for basic `AgentObservation` and `AgentAction` `Protobuf` messages (minimal fields needed for Alpha PoC AI interaction).
         X `a0.2.1.3`: Create a `.proto` file defining the `AgentObservation` and `AgentAction` `Protobuf` messages.
-        - `a0.2.1.4t`: Define procedures and expected outcomes for schema code generation across target languages.
-        - `a0.2.1.4`: Implement build scripts or manual procedures to generate `Protobuf`/`FlatBuffer` code from all defined `.proto` and `.fbs` files for `Rust`, `Go`, and `Python`. Verify successful code generation without compilation errors in each language.
+        X `a0.2.1.4t`: Define procedures and expected outcomes for schema code generation across target languages.
+        X `a0.2.1.4`: Implement build scripts or manual procedures to generate `Protobuf`/`FlatBuffer` code from all defined `.proto` and `.fbs` files for `Rust`, `Go`, and `Python`. Verify successful code generation without compilation errors in each language.
         - `a0.2.1.5t`: Design round-trip serialization/deserialization tests for each defined message type (`GenericEventRequest`, `WorldStateUpdate`, `AgentObservation`, `AgentAction`) in each target language.
         - `a0.2.1.5`: Implement and pass basic round-trip serialization/deserialization tests in `Rust`, `Go`, and `Python` for all schemas defined in `a0.2.1.1` through `a0.2.1.3` to ensure schema correctness and proper functioning of generated code.
     - `a0.2.2.Z`: Define Initial `NATS` Topic Structures & `gRPC` Service Signatures

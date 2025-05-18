@@ -5,6 +5,7 @@ syntax = "proto3";
 // Using a sub-package of the one in generic_event.proto if desired,
 // or a new one specific to agent interactions.
 package fes.simulation.agent; // fish_eco_sim.simulation.agent
+option go_package = "fish_eco_sim/src/generated_schemas/go/protobufs/fes/simulation/agent"; 
 
 // --- AgentObservation ---
 // Sent from the Simulation Engine to an AI Agent, describing what the agent perceives.

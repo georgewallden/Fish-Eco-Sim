@@ -7,6 +7,7 @@ syntax = "proto3";
 // For now, let's keep it simple without a top-level package specific to this file,
 // or we can add a general one like:
 package fes.common.events; // fish_eco_sim.common.events
+option go_package = "fish_eco_sim/src/generated_schemas/go/protobufs/fes/common/events;events";
 
 // GenericEventRequest serves as a common wrapper for various events
 // transmitted within the Fish Eco Sim system.
